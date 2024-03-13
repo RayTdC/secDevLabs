@@ -87,20 +87,19 @@ func main() {
 	r.GET("/play", api.PageGame)
 	r.GET("/ranking", api.PageRanking)
 
-	APIport := fmt.Sprintf(":%d", getAPIPort())
-	echoInstance.Logger.Fatal(echoInstance.Start(APIport))
+	APIport := "10003"
 
 
 // Configuração para certificado autoassinado
-certFile := "cert.pem"
-keyFile := "key.pem"
-cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+certFile := "certificado.pem"
+keyFile := "chave_descriptografada.pem"
+_, err := tls.LoadX509KeyPair(certFile, keyFile)
 if err != nil {
 	fmt.Println("Error loading certificate:", err)
 	os.Exit(1)
 }
 
-tlsConfig := &tls.Config{Certificates: []tls.Certificate{cert}}
+tlsConfig := &tls.Config{Certificates: []tls.Certificate{}}
 echoInstance.Listener = tls.NewListener(echoInstance.Listener, tlsConfig)
 
 echoInstance.Pre(middleware.HTTPSRedirect())
