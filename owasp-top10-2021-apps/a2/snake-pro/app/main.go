@@ -1,10 +1,11 @@
 package main
 
 import (
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
+    "net/http"
 	"io"
 	"os"
 	"strconv"
@@ -87,27 +88,33 @@ func main() {
 	r.GET("/play", api.PageGame)
 	r.GET("/ranking", api.PageRanking)
 
-	APIport := "10003"
+	// APIport := "10003"
 
 
-// Configuração para certificado autoassinado
-certFile := "certificado.pem"
-keyFile := "chave_descriptografada.pem"
-_, err := tls.LoadX509KeyPair(certFile, keyFile)
-if err != nil {
-	fmt.Println("Error loading certificate:", err)
-	os.Exit(1)
-}
+// // Configuração para certificado autoassinado
+// certFile := "certificado.pem"
+// keyFile := "chave_descriptografada.pem"
+// cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+// if err != nil {
+// 	fmt.Println("Error loading certificate:", err)
+// 	os.Exit(1)
+// }
 
-tlsConfig := &tls.Config{Certificates: []tls.Certificate{}}
-echoInstance.Listener = tls.NewListener(echoInstance.Listener, tlsConfig)
 
-echoInstance.Pre(middleware.HTTPSRedirect())
+if err := echoInstance.StartTLS(":443", "certificado.pem", "chave_descriptografada.pem"); err != http.ErrServerClosed {
+	log.Fatal(err)
+  }
+    
 
-err = echoInstance.Start(APIport)
-if err != nil {
-	fmt.Println("Error starting the server:", err)
-}
+// tlsConfig := &tls.Config{Certificates: []tls.Certificate{cert}}
+// echoInstance.Listener = tls.NewListener(echoInstance.Listener, tlsConfig)
+
+// echoInstance.Pre(middleware.HTTPSRedirect())
+
+// err = echoInstance.Start(APIport)
+// if err != nil {
+// 	fmt.Println("Error starting the server:", err)
+// }
 
 }
 
